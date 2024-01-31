@@ -1,0 +1,123 @@
+using System;
+
+class Solver
+{
+    static void printMatrix(int[,] matrix)
+    {
+        for (int h = 0; h < 9; h++)
+        {
+            for (int w = 0; w < 9; w++)
+            {
+                Console.Write(matrix[h,w]);
+            }
+            Console.WriteLine();
+        }
+    }
+
+    static bool checkBox(int[,] matrix, int h, int w, int number)
+    {
+        int posH = (h / 3) * 3;
+        int posW = (w / 3) * 3;
+
+        for (int col = posH; col < posH + 3; col++)
+        {
+            for (int row = posW; row < posW + 3; row++)
+            {
+                if (matrix[col, row] == number)
+                {
+                    return(false);
+                }
+            }
+        }
+        return (true);
+    }
+
+    static bool checkLine(int[,] matrix, int h, int number)
+    {
+        for (int w = 0; w < 9; w++)
+        {
+            if (matrix[h, w] == number)
+            {
+                return (false);
+            }
+        }
+        return (true);
+    }
+
+    static bool checkColumn(int[,] matrix, int w, int number)
+    {
+        for (int h = 0; h < 9; h++)
+        {
+            if (matrix[h, w] == number)
+            {
+                return (false);
+            }
+        }
+        return (true);
+    }
+
+    static bool checkConstraint(int[,] matrix, int h, int w, int number)
+    {
+        if (!checkColumn(matrix, w, number) || !checkLine(matrix, h, number) || !checkBox(matrix, h, w, number))
+        {
+            return (false);
+        }
+        return (true);
+    }
+
+    static void emptyCell(int[,] matrix, int h, int w)
+    {
+        matrix[h , w] = 0; //Remove the cell from the matrix
+    }
+
+    static bool solve(int[,] matrix)
+    {
+        for (int h = 0; h < 9; h++) // For each column
+        {
+            for (int w = 0; w < 9; w++) //For each rows
+            {
+                if (matrix[h, w] == 0) // If there is an empty cell
+                {
+                    for (int i = 1; i < 10; i++) //For each numbers from 1 to 10
+                    {
+                        if (checkConstraint(matrix, h , w , i)) //If the placement is valid
+                        {
+                            matrix[h, w] = i; //Place the number
+                            if (solve(matrix)) //Check if a solution was found with that number
+                            {
+                                return (true);
+                            }
+                            else
+                            {
+                                emptyCell(matrix, h, w); //If there was no solution, remove it and continue
+                            }
+                        }
+                    }
+                    return (false); // If no solution was found with the 9th number, return false
+                }
+            }
+        }
+        return (true); // No empty cells found so its solved
+    }
+
+    static void Main(string[] args)
+    {
+        int[,] matrix = new int[9, 9];
+        for (int h = 0; h < 9; h++)
+        {
+            string line = Console.ReadLine();
+            for (int w = 0; w < 9; w++)
+            {
+                matrix[h, w] = line[w] - 48;
+            }
+        }
+        if (solve(matrix))
+        {
+            printMatrix(matrix);
+        }
+        else
+        {
+            Console.WriteLine("No solutions were found");
+        }
+    }
+}
